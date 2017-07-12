@@ -32,6 +32,7 @@
     NSMutableArray *viewArray = [NSMutableArray array];
     for(int i=0; i<count; i++){
         UIViewController *VC = [[SSTestViewController alloc] init];
+        // 这里讲控制器的view添加到当前控制器里
         [self addChildViewController:VC];
         [viewArray addObject:VC.view];
     }

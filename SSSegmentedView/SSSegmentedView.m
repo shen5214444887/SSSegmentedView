@@ -101,9 +101,9 @@
     self.topScrollView.delegate = self;
     self.topScrollView.contentSize = CGSizeMake(width * self.tabCount, 0);
     
-#pragma mark - 这里在Swift中不知怎么会往下滚动topHeight + slideHeight个单位,导致看不见
+#pragma mark - #pragma mark - 如果是xib里的话，父视图要取消选中Adjust Scroll View Insets
 //    self.topScrollView.scrollEnabled = NO;
-//    [self.topScrollView setContentOffset:CGPointMake(0, topHeight + slideHeight)];
+//    [self.topScrollView setContentOffset:CGPointMake(0, 64)];
     [topView addSubview:self.topScrollView];
     
     for (int i = 0; i < self.tabCount; i ++) {

@@ -57,7 +57,7 @@
 -(void)initScrollViewWithViewArray:(NSArray *)viewArray{
     UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, topHeight, self.allFrame.size.width, self.allFrame.size.height - topHeight)];
     self.scrollView = scrollView;
-    self.scrollView.contentSize = CGSizeMake(self.allFrame.size.width * self.tabCount, self.allFrame.size.height - topHeight);
+    self.scrollView.contentSize = CGSizeMake(self.allFrame.size.width * self.tabCount, 0);
     self.scrollView.backgroundColor = [UIColor whiteColor];
     self.scrollView.pagingEnabled = YES;
     self.scrollView.showsHorizontalScrollIndicator = NO;
@@ -99,7 +99,11 @@
     UIScrollView *topScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.allFrame.size.width, topHeight)];
     self.topScrollView = topScrollView;
     self.topScrollView.delegate = self;
-    self.topScrollView.contentSize = CGSizeMake(width * self.tabCount, topHeight);
+    self.topScrollView.contentSize = CGSizeMake(width * self.tabCount, 0);
+    
+#pragma mark - 这里在Swift中不知怎么会往下滚动topHeight + slideHeight个单位,导致看不见
+//    self.topScrollView.scrollEnabled = NO;
+//    [self.topScrollView setContentOffset:CGPointMake(0, topHeight + slideHeight)];
     [topView addSubview:self.topScrollView];
     
     for (int i = 0; i < self.tabCount; i ++) {

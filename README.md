@@ -1,10 +1,10 @@
 #UC头条，今日头条，百思不得姐的标题导航栏
 
 - 将需要添加的控制器的view直接添加到viewArray里即可显示
-- 效果图，放一张图片上去感受一下即可
+- 效果图
 
 ![SSSegmentedView
-](https://github.com/shen5214444887/SSSegmentedView/blob/master/Screenshot.PNG?raw=true)
+](https://github.com/shen5214444887/SSSegmentedView/blob/master/%E7%A4%BA%E4%BE%8B%E5%9B%BE%E7%89%87.gif?raw=true)
 
 ----
 #使用方法
@@ -12,18 +12,22 @@
 
 #直接上代码
 ```
-	NSInteger count = 8;
-    NSMutableArray *titleArray = [NSMutableArray array];
-    for(int i=0; i<count; i++){
-        [titleArray addObject:[NSString stringWithFormat:@"按钮%d",i]];
-    }
-    NSMutableArray *viewArray = [NSMutableArray array];
-    for(int i=0; i<count; i++){
-        UIViewController *VC = [[SSTestViewController alloc] init];
-        [self addChildViewController:VC];
-        [viewArray addObject:VC.view];
-    }
-    
-    SSSegmentedView *segmentedView = [[SSSegmentedView alloc] initWithFrame:CGRectMake(0, 100, 320, 320) titleArray:titleArray viewArray:viewArray];
-    [self.view addSubview:segmentedView];
+	let count = 7
+   	let frame = CGRect(x: 0, y: 20, width: view.bounds.width, height: view.bounds.height)
+	var contentViews = [UIView]()
+	var titles = [String]()
+	for i in 0..<count {
+		let vc = testViewController()
+		addChildViewController(vc)
+      	contentViews.append(vc.view)
+            
+		titles.append("标题\(i)")
+	}
+        
+	let segmentView = SSSegmentedView(frame: frame, titles: titles, contentViews: contentViews)
+	segmentView.viewIndex = {index in
+		print("----滚动位置\(index)")
+	}
+        
+	view.addSubview(segmentView)
 ```

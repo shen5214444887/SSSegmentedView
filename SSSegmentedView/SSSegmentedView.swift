@@ -179,7 +179,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     private var currentIndex = 0
     
     // MARK: - 点击事件
-    @objc func btnClick(btn: UIButton) {
+    @objc private func btnClick(btn: UIButton) {
         if currentIndex == btn.tag {
             return
         }

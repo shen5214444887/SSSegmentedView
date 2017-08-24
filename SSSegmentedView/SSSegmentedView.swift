@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum sliderStyle {
+    case normal 
+    case center
+}
+
 class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 视图滚动位置回调
@@ -23,6 +28,9 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             }
         }
     }
+    
+    /// 滑动指示器的样式
+    var sliderStyle: sliderStyle = .normal
     
     /// 最大标题数，超过此值，标题视图就会滚动
     var subViewCountMax: CGFloat = 5
@@ -55,7 +63,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     /// 底部分割线颜色
     var linColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
     
-    /// 是否允许滚动
+    /// 是否允许手势滚动
     var isScrollEnabled = true
     /// 是否显示底部分割线
     var isShowBottomLine = true
@@ -63,10 +71,16 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     var isBounces = false
     
     /// 初始化方法
-    convenience init(frame: CGRect, titles: [String], contentViews: [UIView]) {
+    convenience init(frame: CGRect, titles: [String], contentViews: [UIView], sliderStyle: sliderStyle = .normal) {
         self.init(frame: frame)
         self.titles = titles
         self.contentViews = contentViews
+        self.sliderStyle = sliderStyle
+        
+    }
+    
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
         
         setupUI()
     }
@@ -131,6 +145,18 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         slideView = UIView(frame: CGRect(x: 0, y: topScrollView.bounds.height - slideHeight, width: width, height: slideHeight))
         slideView.backgroundColor = slideColor
         topScrollView.addSubview(slideView)
+        
+        if sliderStyle == .center {
+            let attr = [NSFontAttributeName: UIFont.systemFont(ofSize: titleFontSize)]
+            let rect = titles[0].size(attributes: attr)
+            let x = (width - rect.width) * 0.5
+            let v = UIView(frame: CGRect(x: x, y: 0, width: rect.width, height: slideHeight))
+            v.backgroundColor = slideColor
+            
+            slideView.frame.origin.y = (topHeight + rect.height) * 0.6
+            slideView.backgroundColor = UIColor.clear
+            slideView.addSubview(v)
+        }
     }
     
     /// 设置标题视图

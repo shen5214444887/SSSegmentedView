@@ -9,8 +9,8 @@
 import UIKit
 
 enum sliderStyle {
-    case normal 
-    case center
+    case normal // 宽度与按钮相同，位置在按钮下面
+    case center // 宽度与文字相同，位置在文字下面
 }
 
 class SSSegmentedView: UIView, UIScrollViewDelegate {

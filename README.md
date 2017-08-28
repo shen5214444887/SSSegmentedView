@@ -16,7 +16,7 @@
 ##使用方法
 - 将SSSegmentedView文件夹直接拖到项目中
 
-##直接上代码
+##代码创建
 ```SWift
 	let count = 7
    	let frame = CGRect(x: 0, y: 20, width: view.bounds.width, height: view.bounds.height)
@@ -37,6 +37,11 @@
         
 	view.addSubview(segmentView)
 ```
+
+###xib / storyboard 创建
+
+- 将view直接设置成SSSegmentedView即可
+	***在storyboard中 ，一定要将 `Adjust Scroll View Insets` 取消勾选
 
 ----
 
@@ -96,5 +101,8 @@
 ----
 
 ###更新记录
-- 2.0 Swift重写 
+- 1.1 Swift重写 
 - 1.0 OC基本功能实现
+
+### 有什么需求可以告诉我，你的要求是我最大的帮助
+### 您的star，是对我最大的鼓励与支持~

@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         let segmentView = SSSegmentedView(frame: frame, titles: titles, contentViews: contentViews)
         segmentView.sliderStyle = .center
         segmentView.isShowBottomLine = false
-        segmentView.viewIndex = {index in
+        segmentView.viewIndex = { index in
             print("----滚动位置\(index)")
         }
         

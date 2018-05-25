@@ -1,4 +1,4 @@
-##UC头条，今日头条，百思不得姐的分段滚动视图
+# UC头条，今日头条，百思不得姐的分段滚动视图
 
 - 效果图
 
@@ -7,16 +7,16 @@
 
 ----
 
-### 实现功能
+## 实现功能
 - 视图切换后闭包回调
 - 主动选中及滚动到某个界面
 - 可以更改标题样式
 
 ----
-##使用方法
+## 使用方法
 - 将SSSegmentedView文件夹直接拖到项目中
 
-##代码创建
+## 代码创建
 ```SWift
 	let count = 7
    	let frame = CGRect(x: 0, y: 20, width: view.bounds.width, height: view.bounds.height)
@@ -38,14 +38,14 @@
 	view.addSubview(segmentView)
 ```
 
-###xib / storyboard 创建
+## xib / storyboard 创建
 
 - 将view直接设置成SSSegmentedView即可
 	***在storyboard中 ，一定要将 `Adjust Scroll View Insets` 取消勾选
 
 ----
 
-###标题样式自定义
+## 标题样式自定义
 	/// 滑动指示器的样式，(normal, center)两种样式
     var sliderStyle: sliderStyle = .normal
     
@@ -87,20 +87,20 @@
     /// 是否使用弹簧效果
     var isBounces = false
 
-###视图切换后闭包回调
+## 视图切换后闭包回调
 ```Swift
 	segmentView.viewIndex = {index in
 		print("----滚动位置\(index)")
 	}
 ```
-###主动选中及滚动到某个界面
+## 主动选中及滚动到某个界面
 ```Swift
 	segmentView.selectedIndex = 1 // 选中第2个视图
 ```
 
 ----
 
-###更新记录
+### 更新记录
 - 1.1 Swift重写 
 - 1.0 OC基本功能实现
 

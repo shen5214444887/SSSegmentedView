@@ -13,7 +13,7 @@ class testViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(colorLiteralRed: Float(arc4random_uniform(255))/255.0, green: Float(arc4random_uniform(255))/255.0, blue: Float(arc4random_uniform(255))/255.0, alpha: 1)
+        view.backgroundColor = UIColor(red: CGFloat(arc4random_uniform(255))/255.0, green: CGFloat(arc4random_uniform(255))/255.0, blue: CGFloat(arc4random_uniform(255))/255.0, alpha: 1)
     }
 
 }

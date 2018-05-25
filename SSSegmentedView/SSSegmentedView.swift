@@ -147,8 +147,8 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         topScrollView.addSubview(slideView)
         
         if sliderStyle == .center {
-            let attr = [NSFontAttributeName: UIFont.systemFont(ofSize: titleFontSize)]
-            let rect = titles[0].size(attributes: attr)
+            let attr = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: titleFontSize)]
+            let rect = titles[0].size(withAttributes: attr)
             let x = (width - rect.width) * 0.5
             let v = UIView(frame: CGRect(x: x, y: 0, width: rect.width, height: slideHeight))
             v.backgroundColor = slideColor

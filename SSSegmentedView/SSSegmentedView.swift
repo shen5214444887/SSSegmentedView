@@ -48,8 +48,8 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     /// 底部分割线高度
     var lineHeight: CGFloat = 1
     
-    /// 标题按钮字体大小
-    var titleFontSize: CGFloat = 17
+    /// 标题按钮字体
+    var titleFont: UIFont = UIFont.systemFont(ofSize: 17)
     /// 标题按钮背景颜色（普通状态）
     var titleBackgroundColor = UIColor.white
     /// 标题按钮背景颜色（选中状态）
@@ -147,7 +147,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         topScrollView.addSubview(slideView)
         
         if sliderStyle == .center {
-            let attr = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: titleFontSize)]
+            let attr = [NSAttributedStringKey.font: titleFont]
             let rect = titles[0].size(withAttributes: attr)
             let x = (width - rect.width) * 0.5
             let v = UIView(frame: CGRect(x: x, y: 0, width: rect.width, height: slideHeight))
@@ -179,7 +179,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             btn.tag = i
             btn.setTitle(titles[i], for: .normal)
             btn.setTitleColor(titleNomalColor, for: .normal)
-            btn.titleLabel?.font = UIFont.systemFont(ofSize: titleFontSize)
+            btn.titleLabel?.font = titleFont
             btn.titleLabel?.textAlignment = .center
             btn.backgroundColor = titleBackgroundColor
             btn.addTarget(self, action: #selector(btnClick), for: .touchUpInside)
@@ -277,4 +277,12 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     }
 }
 
+extension String {
+    
+    /// 根据字体计算尺寸
+    func ss_size(withFont font: UIFont) -> CGSize {
+        let attributes = [NSAttributedStringKey.font: font]
+        return (self as NSString).size(withAttributes: attributes)
+    }
+}
 

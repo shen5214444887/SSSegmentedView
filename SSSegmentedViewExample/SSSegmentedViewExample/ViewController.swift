@@ -20,9 +20,8 @@ class ViewController: UIViewController {
             let vc = testViewController()
             addChildViewController(vc)
             contentViews.append(vc.view)
-            
-            titles.append("标题\(i)")
         }
+        titles = ["标题1", "标题22", "标题333", "标题4444", "标题55555", "标题666666", "标题777777"]
         
         let segmentView = SSSegmentedView(frame: frame, titles: titles, contentViews: contentViews)
         segmentView.sliderStyle = .center

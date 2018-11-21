@@ -9,8 +9,10 @@
 import UIKit
 
 enum sliderStyle {
-    case normal // 宽度与按钮相同，位置在按钮下面
-    case center // 宽度与文字相同，位置在文字下面
+    /// 位置在按钮下面
+    case normal
+    /// 位置在文字下面
+    case center
 }
 
 class SSSegmentedView: UIView, UIScrollViewDelegate {
@@ -31,9 +33,6 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 滑动指示器的样式
     var sliderStyle: sliderStyle = .normal
-    
-    /// 最大标题数，超过此值，标题视图就会滚动
-    var subViewCountMax: CGFloat = 5
 
     /// 视图标题数组
     var titles = [String]()
@@ -47,6 +46,8 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     var slideHeight: CGFloat = 2
     /// 底部分割线高度
     var lineHeight: CGFloat = 1
+    /// 标题按钮左右两边的距离
+    var titleMargin: CGFloat = 10
     
     /// 标题按钮字体
     var titleFont: UIFont = UIFont.systemFont(ofSize: 17)
@@ -133,7 +134,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
 
     
     /// 设置滑动指示View
-    private func setupSlideView(width: CGFloat) {
+    private func setupSlideView() {
         // 底部分割线
         if isShowBottomLine {
             let bottomView = UIView(frame: CGRect(x: 0, y: topScrollView.bounds.height - lineHeight, width: frame.width, height: lineHeight))
@@ -141,41 +142,42 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             addSubview(bottomView)
         }
         
+        // 滑动指示器初始化的宽
+        let width = self.titleWidthArray[0]
         // 滑动指示器
-        slideView = UIView(frame: CGRect(x: 0, y: topScrollView.bounds.height - slideHeight, width: width, height: slideHeight))
+        let slideFrame = CGRect(x: self.titleMargin, y: topScrollView.bounds.height - slideHeight, width: width - self.titleMargin * 2, height: slideHeight)
+        slideView = UIView(frame: slideFrame)
         slideView.backgroundColor = slideColor
         topScrollView.addSubview(slideView)
         
         if sliderStyle == .center {
-            let attr = [NSAttributedStringKey.font: titleFont]
-            let rect = titles[0].size(withAttributes: attr)
-            let x = (width - rect.width) * 0.5
-            let v = UIView(frame: CGRect(x: x, y: 0, width: rect.width, height: slideHeight))
-            v.backgroundColor = slideColor
-            
+            let rect = titles[0].ss_size(withFont: titleFont)
             slideView.frame.origin.y = (topHeight + rect.height) * 0.6
-            slideView.backgroundColor = UIColor.clear
-            slideView.addSubview(v)
         }
     }
     
     /// 设置标题视图
     private func setupTitles() {
-        var width = frame.width / subViewCountMax
-        if subViewCount < subViewCountMax {
-            width = frame.width / subViewCount
+        self.titleWidthArray.removeAll()
+        var allWidth: CGFloat = 0
+        for title in titles {
+            let width = title.ss_size(withFont: titleFont).width + self.titleMargin * 2
+            self.titleWidthArray.append(width)
+            allWidth += width
         }
+        self.titleAllWidth = allWidth
         
         topScrollView.frame = CGRect(x: 0, y: 0, width: frame.width, height: topHeight)
         topScrollView.delegate = self
         topScrollView.bounces = isBounces;
         topScrollView.showsVerticalScrollIndicator = false
         topScrollView.showsHorizontalScrollIndicator = false
-        topScrollView.contentSize = CGSize(width: width * subViewCount, height: 0)
+        topScrollView.contentSize = CGSize(width: allWidth, height: 0)
         addSubview(topScrollView)
         
+        var x: CGFloat = 0
         for i in 0..<Int(subViewCount) {
-            let btn = UIButton(frame: CGRect(x: CGFloat(i) * width, y: 0, width: width, height: topHeight))
+            let btn = UIButton(frame: CGRect(x: x, y: 0, width: self.titleWidthArray[i], height: topHeight))
             btn.tag = i
             btn.setTitle(titles[i], for: .normal)
             btn.setTitleColor(titleNomalColor, for: .normal)
@@ -183,12 +185,13 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             btn.titleLabel?.textAlignment = .center
             btn.backgroundColor = titleBackgroundColor
             btn.addTarget(self, action: #selector(btnClick), for: .touchUpInside)
+            x += self.titleWidthArray[i]
             
             topScrollView.addSubview(btn)
             topViewArray.append(btn)
         }
         
-        setupSlideView(width: width)
+        setupSlideView()
     }
     
     /// 子视图个数
@@ -197,6 +200,10 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     private var topScrollView = UIScrollView()
     /// 所有的按钮数组
     private var topViewArray = [UIButton]()
+    /// 所有的按钮标题宽度数组
+    private var titleWidthArray = [CGFloat]()
+    /// 标题数组的最大宽度
+    private var titleAllWidth: CGFloat = 0
     /// 滑动指示器
     private var slideView = UIView()
     /// 主视图
@@ -228,17 +235,23 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 改变标题 ScrollView 滚动位置
     private func changeTopScollViewPoint(index: Int) {
-        if self.subViewCount > subViewCountMax {
-            let width = slideView.bounds.width
-            var sumStep = width * (CGFloat(index) - subViewCountMax / 2)
-            
-            if (CGFloat(index) <= subViewCountMax / 2) {
-                sumStep = 0
-            } else if (CGFloat(index) >= (subViewCount - subViewCountMax/2 - 1)) {
-                sumStep = width * (subViewCount - subViewCountMax)
+        if self.titleAllWidth <= self.bounds.width {
+            return
+        }
+        
+        var x: CGFloat = 0
+        for i in 0..<index {
+            x += self.titleWidthArray[i]
+        }
+        x += self.titleWidthArray[index] * 0.5 // 滚动到中间
+        if x > self.bounds.width * 0.5 {
+            var offsetx = x - self.bounds.width * 0.5
+            if x > (self.titleAllWidth - self.bounds.width * 0.5) { // 避免滚动过头
+                offsetx = self.titleAllWidth - self.bounds.width
             }
-            
-            topScrollView.setContentOffset(CGPoint(x: sumStep, y: 0), animated: true)
+            self.topScrollView.setContentOffset(CGPoint(x: offsetx, y: 0), animated: true)
+        } else {
+            self.topScrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         }
     }
     
@@ -251,9 +264,19 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     /// 按钮点击后 scrollView 滚动后的回调
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if scrollView.isEqual(self.scrollView) {
-            let index = Int(scrollView.contentOffset.x / bounds.width)
+            // 加0.5防止不到1
+            let index = Int(scrollView.contentOffset.x / bounds.width + 0.5)
             if index != currentIndex {
                 currentIndex = index
+                var x: CGFloat = 0
+                for i in 0..<index {
+                    x += self.titleWidthArray[i]
+                }
+                
+                var f: CGRect = self.slideView.frame
+                f.origin.x = x + self.titleMargin
+                f.size.width = self.titleWidthArray[index] - self.titleMargin * 2
+                self.slideView.frame = f
                 
                 viewIndex?(index)
                 
@@ -267,13 +290,21 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 滑动指示器滚动位置
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView == self.scrollView {
-            var frame = slideView.frame
-            let count = subViewCount > subViewCountMax ? subViewCountMax : subViewCount
-            
-            frame.origin.x = scrollView.contentOffset.x / count
-            slideView.frame = frame
-        }
+//        if scrollView == self.scrollView {
+//            var frame = slideView.frame
+//            let index = scrollView.contentOffset.x / self.bounds.width
+//            print("--index: \(index),--currentIndex:\(currentIndex)")
+//            if index > CGFloat(currentIndex) { // 往右边跑
+//                let sWidth = (self.titleWidthArray[currentIndex] + self.titleWidthArray[currentIndex + 1]) * 0.5
+//                let x = self.tempSlideFrame.origin.x + (index - CGFloat(currentIndex)) * sWidth
+//                frame.origin.x = x
+//                self.slideView.frame = frame
+//            } else { // 往左边跑
+//
+//            }
+//            frame.origin.x = scrollView.contentOffset.x / count
+//            slideView.frame = frame
+//        }
     }
 }
 

@@ -111,7 +111,7 @@
 				TargetAttributes = {
 					0B7625471F4D7E2A00103733 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = 6F42P7DMQT;
+						DevelopmentTeam = 2RS856R568;
 						LastSwiftMigration = 0930;
 						ProvisioningStyle = Automatic;
 					};
@@ -295,7 +295,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 6F42P7DMQT;
+				DEVELOPMENT_TEAM = 2RS856R568;
 				INFOPLIST_FILE = SSSegmentedViewExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Shen.SSSegmentedViewExample;
@@ -309,7 +309,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 6F42P7DMQT;
+				DEVELOPMENT_TEAM = 2RS856R568;
 				INFOPLIST_FILE = SSSegmentedViewExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Shen.SSSegmentedViewExample;

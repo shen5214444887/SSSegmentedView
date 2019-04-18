@@ -24,7 +24,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     var selectIndex = 0 {
         didSet {
             if selectIndex >= 0 && selectIndex < Int(subViewCount) {
-                btnClick(btn: topViewArray[selectIndex])
+                btnClick(topViewArray[selectIndex])
             } else {
                 print("----当前视图位置越界")
             }
@@ -33,7 +33,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 滑动指示器的样式
     var sliderStyle: sliderStyle = .normal
-
+    
     /// 视图标题数组
     var titles = [String]()
     
@@ -41,7 +41,18 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     var contentViews = [UIView]()
     
     /// 标题视图高度
-    var topHeight: CGFloat = 50
+    var topHeight: CGFloat = 50 {
+        didSet {
+            var frame = scrollView.frame
+            frame.origin.y = topHeight
+            frame.size.height = self.frame.size.height - topHeight
+            scrollView.frame = frame
+            topScrollView.frame = CGRect(x: 0, y: 0, width: frame.width, height: topHeight)
+            if topHeight > 0 {
+                setupTitles()
+            }
+        }
+    }
     /// 滑动指示器高度
     var slideHeight: CGFloat = 2
     /// 底部分割线高度
@@ -65,19 +76,23 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     var linColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
     
     /// 是否允许手势滚动
-    var isScrollEnabled = true
+    var isScrollEnabled = true {
+        didSet {
+            scrollView.isScrollEnabled = isScrollEnabled
+        }
+    }
     /// 是否显示底部分割线
-    var isShowBottomLine = true
+    var isShowBottomLine = false
     /// 是否使用弹簧效果
     var isBounces = false
     
     /// 初始化方法
     convenience init(frame: CGRect, titles: [String], contentViews: [UIView], sliderStyle: sliderStyle = .normal) {
         self.init(frame: frame)
+        
         self.titles = titles
         self.contentViews = contentViews
         self.sliderStyle = sliderStyle
-        
     }
     
     override func draw(_ rect: CGRect) {
@@ -102,15 +117,14 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         
         if subViewCount == 0 {
             print("----视图或者标题为0!!!")
-            
             return
         }
         
         setupTitles()
-        
         setupContenViews()
-        
-        changeBtnState(index: 0)
+        changeBtnState(index: selectIndex)
+        changeTopScollViewPoint(index: selectIndex)
+        scrollView.setContentOffset(CGPoint(x: CGFloat(selectIndex) * bounds.width, y: 0), animated: false)
     }
     
     /// 设置滚动主视图
@@ -131,7 +145,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             scrollView.addSubview(v)
         }
     }
-
+    
     
     /// 设置滑动指示View
     private func setupSlideView() {
@@ -143,9 +157,15 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         }
         
         // 滑动指示器初始化的宽
-        let width = self.titleWidthArray[0]
+        let width = self.titleWidthArray[selectIndex]
         // 滑动指示器
-        let slideFrame = CGRect(x: self.titleMargin, y: topScrollView.bounds.height - slideHeight, width: width - self.titleMargin * 2, height: slideHeight)
+        var x: CGFloat = 0
+        for i in 0..<selectIndex {
+            x += self.titleWidthArray[i]
+        }
+        x = x + self.titleMargin
+        let slideFrame = CGRect(x: x, y: topScrollView.bounds.height - slideHeight, width: width - self.titleMargin * 2, height: slideHeight)
+        slideView.removeFromSuperview()
         slideView = UIView(frame: slideFrame)
         slideView.backgroundColor = slideColor
         topScrollView.addSubview(slideView)
@@ -167,7 +187,9 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         }
         self.titleAllWidth = allWidth
         
+        topScrollView.removeFromSuperview()
         topScrollView.frame = CGRect(x: 0, y: 0, width: frame.width, height: topHeight)
+        topScrollView.clipsToBounds = true
         topScrollView.delegate = self
         topScrollView.bounces = isBounces;
         topScrollView.showsVerticalScrollIndicator = false
@@ -175,6 +197,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         topScrollView.contentSize = CGSize(width: allWidth, height: 0)
         addSubview(topScrollView)
         
+        _ = topScrollView.subviews.map { $0.removeFromSuperview() }
         var x: CGFloat = 0
         for i in 0..<Int(subViewCount) {
             let btn = UIButton(frame: CGRect(x: x, y: 0, width: self.titleWidthArray[i], height: topHeight))
@@ -184,7 +207,7 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
             btn.titleLabel?.font = titleFont
             btn.titleLabel?.textAlignment = .center
             btn.backgroundColor = titleBackgroundColor
-            btn.addTarget(self, action: #selector(btnClick), for: .touchUpInside)
+            btn.addTarget(self, action: #selector(btnClick(_:)), for: .touchUpInside)
             x += self.titleWidthArray[i]
             
             topScrollView.addSubview(btn)
@@ -208,12 +231,10 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     private var slideView = UIView()
     /// 主视图
     private var scrollView = UIScrollView()
-    /// 当前视图的位置
-    private var currentIndex = 0
     
     // MARK: - 点击事件
-    @objc private func btnClick(btn: UIButton) {
-        if currentIndex == btn.tag {
+    @objc private func btnClick(_ btn: UIButton) {
+        if selectIndex == btn.tag {
             return
         }
         
@@ -266,8 +287,8 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
         if scrollView.isEqual(self.scrollView) {
             // 加0.5防止不到1
             let index = Int(scrollView.contentOffset.x / bounds.width + 0.5)
-            if index != currentIndex {
-                currentIndex = index
+            if index != selectIndex {
+                selectIndex = index
                 var x: CGFloat = 0
                 for i in 0..<index {
                     x += self.titleWidthArray[i]
@@ -278,11 +299,11 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
                 f.size.width = self.titleWidthArray[index] - self.titleMargin * 2
                 self.slideView.frame = f
                 
-                viewIndex?(index)
+                viewIndex?(selectIndex)
                 
-                changeBtnState(index: index)
+                changeBtnState(index: selectIndex)
                 
-                changeTopScollViewPoint(index: index)
+                changeTopScollViewPoint(index: selectIndex)
             }
             
         }
@@ -290,21 +311,21 @@ class SSSegmentedView: UIView, UIScrollViewDelegate {
     
     /// 滑动指示器滚动位置
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        if scrollView == self.scrollView {
-//            var frame = slideView.frame
-//            let index = scrollView.contentOffset.x / self.bounds.width
-//            print("--index: \(index),--currentIndex:\(currentIndex)")
-//            if index > CGFloat(currentIndex) { // 往右边跑
-//                let sWidth = (self.titleWidthArray[currentIndex] + self.titleWidthArray[currentIndex + 1]) * 0.5
-//                let x = self.tempSlideFrame.origin.x + (index - CGFloat(currentIndex)) * sWidth
-//                frame.origin.x = x
-//                self.slideView.frame = frame
-//            } else { // 往左边跑
-//
-//            }
-//            frame.origin.x = scrollView.contentOffset.x / count
-//            slideView.frame = frame
-//        }
+        //        if scrollView == self.scrollView {
+        //            var frame = slideView.frame
+        //            let index = scrollView.contentOffset.x / self.bounds.width
+        //            GMLog("--index: \(index),--selectIndex:\(selectIndex)")
+        //            if index > CGFloat(selectIndex) { // 往右边跑
+        //                let sWidth = (self.titleWidthArray[selectIndex] + self.titleWidthArray[selectIndex + 1]) * 0.5
+        //                let x = self.tempSlideFrame.origin.x + (index - CGFloat(selectIndex)) * sWidth
+        //                frame.origin.x = x
+        //                self.slideView.frame = frame
+        //            } else { // 往左边跑
+        //
+        //            }
+        //            frame.origin.x = scrollView.contentOffset.x / count
+        //            slideView.frame = frame
+        //        }
     }
 }
 
@@ -312,7 +333,7 @@ extension String {
     
     /// 根据字体计算尺寸
     func ss_size(withFont font: UIFont) -> CGSize {
-        let attributes = [NSAttributedStringKey.font: font]
+        let attributes = [NSAttributedString.Key.font: font]
         return (self as NSString).size(withAttributes: attributes)
     }
 }
